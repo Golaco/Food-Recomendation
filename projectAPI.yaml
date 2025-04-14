@@ -1,0 +1,234 @@
+openapi: 3.0.3
+info:
+  title: Food & Recipe Suggestion API
+  description: REST API for suggesting recipes based on filters like ingredients, cuisine, meal type, and prep time.
+  version: 1.0.0
+
+servers:
+  - url: https://api.foodsuggestion.com/v1
+
+paths:
+  /recipes:
+    get:
+      summary: Get recipes based on filters
+      parameters:
+        - in: query
+          name: ingredients
+          schema:
+            type: string
+          description: Comma-separated list of available ingredients
+        - in: query
+          name: maxTime
+          schema:
+            type: integer
+          description: Maximum preparation time in minutes
+        - in: query
+          name: cuisine
+          schema:
+            type: string
+          description: Type of cuisine (e.g., Italian, Indian)
+        - in: query
+          name: mealType
+          schema:
+            type: string
+          description: Type of meal (e.g., breakfast, dinner, dessert)
+      responses:
+        '200':
+          description: A list of matching recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeSummary'
+
+  /recipes/{id}:
+    get:
+      summary: Get full recipe details by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Full recipe details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+
+  /recipes:
+    post:
+      summary: Add a new recipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewRecipe'
+      responses:
+        '201':
+          description: Recipe created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+
+  /cuisines:
+    get:
+      summary: Get a list of supported cuisines
+      responses:
+        '200':
+          description: A list of cuisine types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /meal-types:
+    get:
+      summary: Get a list of supported meal types
+      responses:
+        '200':
+          description: A list of meal types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /ingredients:
+    get:
+      summary: Get a list of available ingredients
+      responses:
+        '200':
+          description: A list of ingredients for user selection
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /suggest:
+    post:
+      summary: Suggest recipes based on smart filtering and scoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuggestionRequest'
+      responses:
+        '200':
+          description: Suggested recipes based on best match
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SuggestedRecipe'
+
+components:
+  schemas:
+    RecipeSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        estimatedTime:
+          type: integer
+        cuisine:
+          type: string
+        mealType:
+          type: string
+
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        ingredients:
+          type: array
+          items:
+            type: string
+        steps:
+          type: array
+          items:
+            type: string
+        time:
+          type: integer
+        cuisine:
+          type: string
+        mealType:
+          type: string
+
+    NewRecipe:
+      type: object
+      required:
+        - name
+        - ingredients
+        - steps
+        - time
+        - cuisine
+        - mealType
+      properties:
+        name:
+          type: string
+        ingredients:
+          type: array
+          items:
+            type: string
+        steps:
+          type: array
+          items:
+            type: string
+        time:
+          type: integer
+        cuisine:
+          type: string
+        mealType:
+          type: string
+
+    SuggestionRequest:
+      type: object
+      properties:
+        ingredients:
+          type: array
+          items:
+            type: string
+        maxTime:
+          type: integer
+        cuisine:
+          type: string
+        mealType:
+          type: string
+
+    SuggestedRecipe:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        matchScore:
+          type: number
+          format: float
+        estimatedTime:
+          type: integer
+        missingIngredients:
+          type: array
+          items:
+            type: string
