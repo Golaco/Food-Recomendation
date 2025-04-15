@@ -1,38 +1,27 @@
-from flask import jsonify, abort
+from flask import jsonify, request, abort
+import datasets_handler as dataset  
 
 def get_recipes(req):
-    # Extract query params
-    ingredients = req.args.get("ingredients", "")
+    ingredients = req.args.get("ingredients")
     max_time = req.args.get("maxTime")
     cuisine = req.args.get("cuisine")
     meal_type = req.args.get("mealType")
 
-    # TODO: Replace with real filtering logic
-    return jsonify([
-        {
-            "id": "r1",
-            "name": "Pasta Primavera",
-            "estimatedTime": 30,
-            "cuisine": "Italian",
-            "mealType": "dinner"
-        }
-    ])
+    results = dataset.get_filtered_recipes(
+        ingredients=ingredients,
+        max_time=max_time,
+        cuisine=cuisine,
+        meal_type=meal_type
+    )
+
+    return jsonify(results)
 
 def get_recipe_by_id(recipe_id):
-    # TODO: Fetch recipe from DB
-    if recipe_id == "r1":
-        return jsonify({
-            "id": "r1",
-            "name": "Pasta Primavera",
-            "ingredients": ["pasta", "vegetables", "olive oil"],
-            "steps": ["Boil pasta", "Stir-fry vegetables", "Mix together"],
-            "time": 30,
-            "cuisine": "Italian",
-            "mealType": "dinner"
-        })
-    else:
-        abort(404, "Recipe not found")
+    recipe = dataset.get_recipe_by_id(recipe_id)
+    if recipe:
+        return jsonify(recipe)
+    abort(404, "Recipe not found")
 
 def add_recipe(data):
-    # TODO: Save to DB
-    return jsonify({"id": "r999"}), 201
+    new_recipe = dataset.add_recipe(data)
+    return jsonify(new_recipe), 201

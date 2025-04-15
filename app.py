@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from controllers import app_controller, recipes_controller #, metadata_controller, suggest_controller
+from controllers import app_controller, recipes_controller, metadata_controller, suggest_controller
 
 app = Flask(__name__)
 
