@@ -11,7 +11,8 @@ def get_recipes(req):
         ingredients=ingredients,
         max_time=max_time,
         cuisine=cuisine,
-        meal_type=meal_type
+        meal_type=meal_type,
+        number_of_recipes=5
     )
 
     return jsonify(results)
