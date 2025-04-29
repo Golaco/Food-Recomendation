@@ -12,4 +12,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the Flask app
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
