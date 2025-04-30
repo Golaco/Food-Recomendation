@@ -1,15 +1,20 @@
-
+# Use Python base image
 FROM python:3.12-slim
 
-WORKDIR /app
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
+# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copy app
+COPY . /app
+WORKDIR /app
 
-# Flask app
-EXPOSE 3000
+# Expose the port
+EXPOSE 5000
 
-# Start the Flask app
+# Run app
 CMD ["python", "main.py"]
