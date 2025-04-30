@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recipe-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: recipe-api
+  template:
+    metadata:
+      labels:
+        app: recipe-api
+    spec:
+      containers:
+      - name: recipe-api
+        image: gcr.io/fculcn/recipe-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /app/creds.json
+        volumeMounts:
+        - name: gcp-creds
+          mountPath: /app/creds.json
+          subPath: creds.json
+      volumes:
+      - name: gcp-creds
+        secret:
+          secretName: gcp-sa-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recipe-api-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: recipe-api
+  ports:
+  - port: 80
+    targetPort: 5000

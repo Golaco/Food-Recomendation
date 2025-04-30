@@ -6,4 +6,4 @@ services:
     volumes:
       - .:/app
     mem_limit: 2048m
-    cpus: 4
+    cpus: 2
