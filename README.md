@@ -4,8 +4,6 @@
 Group 1:
 - António Almeida
 - Pedro Cardoso
-- Inês Martins
-- Mafalda Rodrigues
 
 # How to run:
 
