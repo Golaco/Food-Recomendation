@@ -13,12 +13,12 @@ spec:
         app: gateway-service
     spec:
       containers:
-      - name: gateway
-        image: gcr.io/fculcn/gateway-service:latest
-        ports:
-        - containerPort: 5000
-        resources:
-          requests:
-            cpu: "250m"
-          limits:
-            cpu: "500m"
+        - name: gateway
+          image: gcr.io/fculcn/gateway-service:latest
+          ports:
+            - containerPort: 5000
+          resources:
+            requests:
+              cpu: "250m"
+            limits:
+              cpu: "500m"

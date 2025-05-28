@@ -12,7 +12,6 @@ Group 1:
    - Main Dataset - https://www.kaggle.com/datasets/wilmerarltstrmberg/recipe-dataset-over-2m  - This one should be limited to 1m lines
 3. Create Google Cloud BigQuery dataset.
 3. Open the terminal and navigate to the project directory and into /src:
-```bash;
 4. Get the credentials for Google Kubernetes Engine:
 ```bash
 gcloud container clusters get-credentials CLUSTER_NAME--region REGION
