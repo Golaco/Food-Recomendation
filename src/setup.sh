@@ -16,12 +16,8 @@ docker push gcr.io/fculcn/recommend-service:latest
 cd ../main
 docker build -t gcr.io/fculcn/gateway-service:latest .
 docker push gcr.io/fculcn/gateway-service:latest
-cd ../..
 
-cd ./recipe-api
-docker build -t gcr.io/fculcn/recipe-api:latest .
-docker push gcr.io/fculcn/recipe-api:latest
-cd ..
+cd ../..
 
 echo "Applying Kubernetes deployments and HPA configs..."
 
@@ -33,9 +29,6 @@ kubectl apply -f services/recommend/hpa.yaml
 
 kubectl apply -f services/main/deployment.yaml
 kubectl apply -f services/main/hpa.yaml
-
-kubectl apply -f recipe-api/deployment.yaml
-kubectl apply -f recipe-api/hpa.yaml
-
+kubectl apply -f services/main/balancer.yaml
 
 echo "Setup complete."
