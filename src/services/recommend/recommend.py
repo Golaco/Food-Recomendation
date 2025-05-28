@@ -13,10 +13,32 @@ def recommend():
     title = data.get("title", "")
     NER = data.get("NER", [])
 
-    if not title or not NER:
-        return jsonify({"error": "Missing title or ingredients"}), 400
+    if not title:
+        return jsonify({"error": "Missing title"}), 400
 
     try:
+        # If NER not provided, fetch it from the first recipe with the given title
+        if not NER:
+            client = bigquery.Client()
+            query = f"""
+                SELECT NER
+                FROM `fculcn.raw_recipes.half_recipes`
+                WHERE LOWER(title) LIKE LOWER('%{title}%')
+                AND NER IS NOT NULL
+                LIMIT 1
+            """
+            query_job = client.query(query)
+            result = list(query_job.result())
+
+            if not result:
+                return jsonify({"error": f"No recipe found with title containing: {title}"}), 404
+
+            raw_ner = result[0].get("NER")
+            try:
+                NER = ast.literal_eval(raw_ner) if isinstance(raw_ner, str) else raw_ner
+            except Exception:
+                NER = []
+
         recommendations = get_recommendations(title, NER, top_k=5, random_sample=True)
         return jsonify({"recommendations": recommendations})
     except Exception as e:
@@ -26,11 +48,11 @@ def recommend():
 def get_recommendations(title, ingredients, top_k=5, random_sample=False):
     client = bigquery.Client()
     query = """
-            SELECT title, NER, ingredients, directions, link, source, site
-            FROM `fculcn.raw_recipes.half_recipes`
-            WHERE title IS NOT NULL
-            AND NER IS NOT NULL LIMIT 1000
-            """
+        SELECT title, NER, ingredients, directions, link, source, site
+        FROM `fculcn.raw_recipes.half_recipes`
+        WHERE title IS NOT NULL AND NER IS NOT NULL
+        LIMIT 1000
+    """
     query_job = client.query(query)
     results = query_job.result()
     df = pd.DataFrame([dict(row) for row in results])
@@ -46,7 +68,6 @@ def get_recommendations(title, ingredients, top_k=5, random_sample=False):
         return []
 
     df["NER"] = df["NER"].apply(parse_ner_field)
-
     df["text"] = df["title"].fillna("") + " " + df["NER"].apply(
         lambda x: " ".join(x) if isinstance(x, list) else "")
 
@@ -66,28 +87,18 @@ def get_recommendations(title, ingredients, top_k=5, random_sample=False):
 
     output = results.to_dict(orient="records")
 
-    # Clean ingredients if needed
     for r in output:
-        ingredients = r.get("ingredients")
-        if isinstance(ingredients, str):
-            try:
-                r["ingredients"] = ast.literal_eval(ingredients)
-            except Exception:
-                r["ingredients"] = re.split(r',\s*', ingredients)
+        for field in ["ingredients"]:
+            val = r.get(field)
+            if isinstance(val, str):
+                try:
+                    r[field] = ast.literal_eval(val)
+                except Exception:
+                    r[field] = re.split(r',\s*', val)
 
     for r in output:
         r.pop("source", None)
         r.pop("site", None)
-
-
-    # Clean ingredients if needed
-    for r in output:
-        ingredients = r.get("ingredients")
-        if isinstance(ingredients, str):
-            try:
-                r["ingredients"] = ast.literal_eval(ingredients)
-            except Exception:
-                r["ingredients"] = re.split(r',\s*', ingredients)
 
     return output
 
