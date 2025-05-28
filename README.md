@@ -83,4 +83,4 @@ There are currently 2 endpoints available:
         "title": "Carrot Cake"
     }
 ```
-You can also just go to http://<external-ip>/ to check the status of the application.
+You can also just go to `http://<external-ip>/` to check the status of the application.
