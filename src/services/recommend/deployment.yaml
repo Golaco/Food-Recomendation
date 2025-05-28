@@ -1,21 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: recipe-api
+  name: recommend-service
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: recipe-api
+      app: recommend-service
   template:
     metadata:
       labels:
-        app: recipe-api
+        app: recommend-service
     spec:
       containers:
-      - name: recipe-api
-        image: gcr.io/fculcn/recipe-api:latest
-        imagePullPolicy: Always
+      - name: recommend
+        image: gcr.io/fculcn/recommend-service:latest
         ports:
         - containerPort: 5000
         env:
@@ -25,6 +24,11 @@ spec:
         - name: gcp-creds
           mountPath: /app/creds.json
           subPath: creds.json
+        resources:
+          requests:
+            cpu: "250m"
+          limits:
+            cpu: "500m"
       volumes:
       - name: gcp-creds
         secret:
@@ -33,11 +37,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: recipe-api-service
+  name: recommend-service
 spec:
-  type: LoadBalancer
   selector:
-    app: recipe-api
+    app: recommend-service
   ports:
-  - port: 80
+  - port: 5000
     targetPort: 5000

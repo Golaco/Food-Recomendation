@@ -1,9 +1,0 @@
-services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-    mem_limit: 2048m
-    cpus: 2
