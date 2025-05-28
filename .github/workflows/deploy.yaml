@@ -35,7 +35,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker build -t ${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/recipe-api:${{ github.sha }} \
-            -f /home/runner/work/Food-Recomendation/src/services/main/Dockerfile  /home/runner/work/Food-Recomendation/src/services/main/
+            -f /home/runner/work/Food-Recomendation/Food-Recomendation/src/services/main/Dockerfile  /home/runner/work/Food-Recomendation/Food-Recomendation/src/services/main/
           docker push ${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/recipe-api:${{ github.sha }}
 
       - name: Set GKE context
