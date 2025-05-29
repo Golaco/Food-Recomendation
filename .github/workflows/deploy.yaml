@@ -1,10 +1,7 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline for All Services
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 
@@ -13,14 +10,16 @@ env:
   GAR_LOCATION: europe-docker.pkg.dev
   CLUSTER_NAME: proj-cluster
   CLUSTER_ZONE: europe-west4
-  DEPLOYMENT_NAME: gateway
-  IMAGE_NAME: recipe-api
+  IMAGE_PREFIX: europe-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
@@ -29,24 +28,11 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Configure Docker
-        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}
-
-      - name: Build and push Docker image
+      - name: Connect to GKE
         run: |
-          docker build -t ${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/recipe-api:${{ github.sha }} \
-            -f src/services/main/Dockerfile  src/services/main/
-          docker push ${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/recipe-api:${{ github.sha }}
+          gcloud container clusters get-credentials $CLUSTER_NAME --zone $CLUSTER_ZONE
 
-      - name: Set GKE context
+      - name: Run setup script for all services
         run: |
-          gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} --zone ${{ env.CLUSTER_ZONE }}
-
-      - name: Deploy to GKE
-        run: |
-          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} ${{ env.DEPLOYMENT_NAME }}=${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/recipe-api:${{ github.sha }}
-
-      - name: Run tests
-        run: |
-          pip install -r requirements.txt
-          pytest tests/
+          chmod +x ./src/setup.sh
+          ./src/setup.sh
