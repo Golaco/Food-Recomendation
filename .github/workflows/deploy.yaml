@@ -28,9 +28,21 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin --quiet
+
       - name: Connect to GKE
         run: |
           gcloud container clusters get-credentials $CLUSTER_NAME --zone $CLUSTER_ZONE
+
+      - name: Create gcp-sa-key secret in Kubernetes
+        run: |
+          echo '${{ secrets.GCP_SA_KEY }}' > key.json
+          kubectl create secret generic gcp-sa-key --from-file=key.json=key.json --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker europe-docker.pkg.dev
 
       - name: Run setup script for all services
         run: |
