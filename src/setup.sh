@@ -1,21 +1,31 @@
 #!/bin/bash
 
-set -e 
-# Stop on failure
+set -e  # Exit on error
 
 echo "Building and pushing Docker images..."
 
-cd ./src/services/search
-docker build -t gcr.io/fculcn/search-service:latest .
-docker push gcr.io/fculcn/search-service:latest
+# Configuration
+PROJECT_ID="fculcn"
+REGION="europe"
+REPOSITORY_PREFIX="$REGION-docker.pkg.dev/$PROJECT_ID"
 
+# Build and push search service
+cd ./services/search
+IMAGE="$REPOSITORY_PREFIX/search-service/search-service:latest"
+docker build -t "$IMAGE" .
+docker push "$IMAGE"
+
+# Build and push recommend service
 cd ../recommend
-docker build -t gcr.io/fculcn/recommend-service:latest .
-docker push gcr.io/fculcn/recommend-service:latest
+IMAGE="$REPOSITORY_PREFIX/recommend-service/recommend-service:latest"
+docker build -t "$IMAGE" .
+docker push "$IMAGE"
 
+# Build and push gateway service
 cd ../main
-docker build -t gcr.io/fculcn/gateway-service:latest .
-docker push gcr.io/fculcn/gateway-service:latest
+IMAGE="$REPOSITORY_PREFIX/gateway-service/gateway-service:latest"
+docker build -t "$IMAGE" .
+docker push "$IMAGE"
 
 cd ../..
 
