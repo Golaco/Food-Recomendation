@@ -5,7 +5,7 @@ set -e
 
 echo "Building and pushing Docker images..."
 
-cd ./services/search
+cd ./src/services/search
 docker build -t gcr.io/fculcn/search-service:latest .
 docker push gcr.io/fculcn/search-service:latest
 
