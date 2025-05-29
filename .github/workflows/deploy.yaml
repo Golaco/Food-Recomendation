@@ -27,7 +27,11 @@ jobs:
 
       - name: Create gcp-sa-key secret in Kubernetes
         run: |
-          kubectl create secret generic gcp-sa-key --from-file=key.json=${{ secrets.GCP_SA_KEY }} --dry-run=client -o yaml | kubectl apply -f -
+          cat <<EOF > key.json
+          ${{ secrets.GCP_SA_KEY }}
+          EOF
+          kubectl create secret generic gcp-sa-key --from-file=key.json=key.json --dry-run=client -o yaml | kubectl apply -f -
+
 
 
       - name: Set up Cloud SDK
