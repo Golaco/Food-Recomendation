@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for All Services
+name: Local DryRun Pipeline
 
 on:
   push:
@@ -44,7 +44,7 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker europe-docker.pkg.dev
 
-      - name: Run setup script for all services
+      - name: Run local setup for all services
         run: |
           chmod +x ./src/dry-run.sh
           ./src/dry-run.sh
