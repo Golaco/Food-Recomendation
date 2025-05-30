@@ -42,7 +42,7 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker europe-docker.pkg.dev
 
-      - name: Run local setup for all services
+      - name: Run deploy setup for all services
         run: |
-          chmod +x ./src/dry-run.sh
-          ./src/dry-run.sh
+          chmod +x ./src/dry-run-server.sh
+          ./src/dry-run-server.sh

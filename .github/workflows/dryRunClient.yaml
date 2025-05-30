@@ -46,5 +46,5 @@ jobs:
 
       - name: Run local setup for all services
         run: |
-          chmod +x ./src/dry-run.sh
-          ./src/dry-run.sh
+          chmod +x ./src/dry-run-client.sh
+          ./src/dry-run-client.sh
