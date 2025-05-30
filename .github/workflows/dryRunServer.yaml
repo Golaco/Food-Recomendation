@@ -1,4 +1,4 @@
-name: Local DryRun Pipeline
+name: Deployment DryRun Pipeline
 
 on:
   workflow_dispatch:
