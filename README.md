@@ -14,7 +14,7 @@ Group 1:
 3. Open the terminal and navigate to the project directory and into /src:
 4. Get the credentials for Google Kubernetes Engine:
 ```bash
-gcloud container clusters get-credentials CLUSTER_NAME--region REGION
+gcloud container clusters get-credentials CLUSTER_NAME --region REGION
 ```
 5. Create secret (must have bigquery access):
 ```bash
@@ -30,6 +30,12 @@ chmod +x redeploy.sh
 ./setup.sh
 ```
    - This will create the necessary Kubernetes resources and deploy the application.
+   - if at tis point you get the error `bash: ./setup.sh: cannot execute: required file not found`, it could be a mishmatch between Windows and Linux line endings. To fix this, you can run the following command:
+```bash
+sed -i 's/\r$//' setup.sh
+```
+   - This will convert the line endings to Unix format.
+
 7.5 If you want to redeploy the application after a change, run:
 ```bash
 ./redeploy.sh
