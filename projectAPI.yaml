@@ -1,251 +1,283 @@
 openapi: 3.0.3
 info:
-  title: Food & Recipe Suggestion API
-  description: REST API for suggesting recipes based on filters like ingredients, cuisine, meal type, and prep time.
+  title: Recipe Recommendation API - Computação na Nuvem
+  description: API for searching and recommending recipes based on ingredients and directions.
   version: 1.0.0
 
 servers:
-  - url: 33.XX.XX.XX  # Ip publico do container
+  - url: http://33.XX.XX.XX
 
 paths:
-  /recipes:
+  /:
     get:
-      summary: Get recipes based on filters
-      parameters:
-        - in: query
-          name: ingredients
-          schema:
-            type: string
-          description: Comma-separated list of available ingredients
-        - in: query
-          name: maxTime
-          schema:
-            type: integer
-          description: Maximum preparation time in minutes
-        - in: query
-          name: cuisine
-          schema:
-            type: string
-          description: Type of cuisine (e.g., Italian, Indian)
-        - in: query
-          name: mealType
-          schema:
-            type: string
-          description: Type of meal (e.g., breakfast, dinner, dessert)
+      summary: Readiness check
+      description: Endpoint to check if the service is ready.
       responses:
         '200':
-          description: A list of matching recipes
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RecipeSummary'
-
-  /recipes/{id}:
-    get:
-      summary: Get full recipe details by ID
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Full recipe details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Recipe'
-
-  /recipes:
-    post:
-      summary: Add a new recipe
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewRecipe'
-      responses:
-        '201':
-          description: Recipe created successfully
+          description: Service is ready
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  id:
+                  status:
                     type: string
+                    example: ready
 
-  /cuisines:
+  /health:
     get:
-      summary: Get a list of supported cuisines
+      summary: Health check
+      description: Endpoint to check if the service is healthy.
       responses:
         '200':
-          description: A list of cuisine types
+          description: Service is healthy
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
 
-  /meal-types:
-    get:
-      summary: Get a list of supported meal types
+  /recommend:
+    post:
+      summary: Recommend recipes based on a given recipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+            examples:
+              carrotCake:
+                summary: Carrot Cake Recipe
+                value:
+                  NER:
+                    - oil
+                    - sugar
+                    - baking soda
+                    - cinnamon
+                    - eggs
+                    - flour
+                    - salt
+                  directions:
+                    - Mix all together.
+                    - Bake at 350° for 35 to 45 minutes in a 9 x 13-inch pan.
+                  ingredients:
+                    - 2 c. flour
+                    - 2 c. sugar
+                    - 1 tsp. salt
+                    - 2 tsp. cinnamon
+                    - 2 tsp. baking soda
+                    - 1 c. oil
+                    - 4 eggs, added 1 at a time
+                  link: www.cookbooks.com/Recipe-Details.aspx?id=810323
+                  site: www.cookbooks.com
+                  source: Gathered
+                  title: Carrot Cake
       responses:
         '200':
-          description: A list of meal types
+          description: List of recommended recipes
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
-
-  /ingredients:
-    get:
-      summary: Get a list of available ingredients
-      responses:
-        '200':
-          description: A list of ingredients for user selection
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  time_seconds:
+                    type: number
+                    format: float
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recipe'
 
   /search:
     post:
-      summary: Search for recipes based on smart filtering and scoring
+      summary: Search recipes based on ingredients
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                ingredients:
-                  type: array
-                  items:
-                    type: string
-              required:
-                - ingredients
-
-  /suggest:
-    post:
-      summary: Suggest recipes based on smart filtering and scoring
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SuggestionRequest'
+              $ref: '#/components/schemas/IngredientSearch'
+            examples:
+              basicSearch:
+                summary: Basic Ingredient Search
+                value:
+                  ingredients:
+                    - flour
+                    - soda
+                    - cinnamon
+                    - salt
+                    - eggs
+                    - oil
+                    - sugar
       responses:
         '200':
-          description: Suggested recipes based on best match
+          description: List of matching recipes
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SuggestedRecipe'
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  time_seconds:
+                    type: number
+                    format: float
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recipe'
+
+  /search/vegetarian:
+    post:
+      summary: Search vegetarian recipes based on ingredients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngredientSearch'
+            examples:
+              vegetarianSearch:
+                summary: Vegetarian Ingredient Search
+                value:
+                  ingredients:
+                    - flour
+                    - soda
+                    - cinnamon
+                    - salt
+                    - eggs
+                    - oil
+                    - sugar
+      responses:
+        '200':
+          description: List of matching vegetarian recipes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  time_seconds:
+                    type: number
+                    format: float
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recipe'
+
+  /search/vegan:
+    post:
+      summary: Search vegan recipes based on ingredients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngredientSearch'
+            examples:
+              veganSearch:
+                summary: Vegan Ingredient Search
+                value:
+                  ingredients:
+                    - flour
+                    - soda
+                    - cinnamon
+                    - salt
+                    - oil
+                    - sugar
+      responses:
+        '200':
+          description: List of matching vegan recipes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  time_seconds:
+                    type: number
+                    format: float
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recipe'
+
+  /search/gluten_free:
+    post:
+      summary: Search gluten-free recipes based on ingredients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngredientSearch'
+            examples:
+              glutenFreeSearch:
+                summary: Gluten-Free Ingredient Search
+                value:
+                  ingredients:
+                    - flour
+                    - soda
+                    - cinnamon
+                    - salt
+                    - eggs
+                    - oil
+                    - sugar
+      responses:
+        '200':
+          description: List of matching gluten-free recipes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  time_seconds:
+                    type: number
+                    format: float
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recipe'
 
 components:
   schemas:
-    RecipeSummary:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        estimatedTime:
-          type: integer
-        cuisine:
-          type: string
-        mealType:
-          type: string
-
     Recipe:
       type: object
       properties:
-        id:
-          type: string
-        name:
-          type: string
+        NER:
+          type: array
+          items:
+            type: string
+        directions:
+          type: array
+          items:
+            type: string
         ingredients:
           type: array
           items:
             type: string
-        steps:
-          type: array
-          items:
-            type: string
-        time:
-          type: integer
-        cuisine:
+        link:
           type: string
-        mealType:
+        site:
           type: string
-
-    NewRecipe:
-      type: object
-      required:
-        - name
-        - ingredients
-        - steps
-        - time
-        - cuisine
-        - mealType
-      properties:
-        name:
+        source:
           type: string
-        ingredients:
-          type: array
-          items:
-            type: string
-        steps:
-          type: array
-          items:
-            type: string
-        time:
-          type: integer
-        cuisine:
+        title:
           type: string
-        mealType:
-          type: string
-
-    SuggestionRequest:
+    IngredientSearch:
       type: object
       properties:
         ingredients:
-          type: array
-          items:
-            type: string
-        maxTime:
-          type: integer
-        cuisine:
-          type: string
-        mealType:
-          type: string
-
-    SuggestedRecipe:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        matchScore:
-          type: number
-          format: float
-        estimatedTime:
-          type: integer
-        missingIngredients:
           type: array
           items:
             type: string
