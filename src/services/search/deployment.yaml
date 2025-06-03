@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: search
-        image: gcr.io/fculcn/search-service:latest
+        image: europe-docker.pkg.dev/fculcn/search-service/search-service:latest
         ports:
         - containerPort: 5000
         env:
@@ -26,9 +26,11 @@ spec:
           subPath: creds.json
         resources:
           requests:
-            cpu: "250m"
-          limits:
             cpu: "500m"
+            memory: "1.5Gi"
+          limits:
+            cpu: "2"
+            memory: "2Gi"
       volumes:
       - name: gcp-creds
         secret:

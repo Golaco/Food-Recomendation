@@ -3,3 +3,5 @@
 /Enunciado.pdf
 /notas
 /controllers/
+/src/tests/locust-env/
+/src/tests/__pycache__/

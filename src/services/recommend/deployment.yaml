@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: recommend
-        image: gcr.io/fculcn/recommend-service:latest
+        image: europe-docker.pkg.dev/fculcn/recommend-service/recommend-service:latest
         ports:
         - containerPort: 5000
         env:
